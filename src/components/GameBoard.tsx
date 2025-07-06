@@ -157,7 +157,8 @@ export default function GameBoard({ players }: { players: Player[] }) {
                 ))}
             </div>
           </div>
-        ))}
+        );
+        })}
       </div>
 
       {/* Controls */}
