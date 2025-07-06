@@ -22,12 +22,42 @@ export default function Dice({ value, rolling }: DiceProps) {
         className={`relative w-16 h-16 transform-preserve-3d transition-transform duration-700 ${rolling ? 'animate-dice-roll' : ''}`}
         style={{ transform }}
       >
-        <div className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center" style={{ transform: 'translateZ(32px)' }}>1</div>
-        <div className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center" style={{ transform: 'rotateX(90deg) translateZ(32px)' }}>2</div>
-        <div className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center" style={{ transform: 'rotateY(-90deg) translateZ(32px)' }}>3</div>
-        <div className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center" style={{ transform: 'rotateY(90deg) translateZ(32px)' }}>4</div>
-        <div className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center" style={{ transform: 'rotateX(-90deg) translateZ(32px)' }}>5</div>
-        <div className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center" style={{ transform: 'rotateY(180deg) translateZ(32px)' }}>6</div>
+        <div
+          className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center text-black"
+          style={{ transform: 'translateZ(32px)' }}
+        >
+          1
+        </div>
+        <div
+          className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center text-black"
+          style={{ transform: 'rotateX(90deg) translateZ(32px)' }}
+        >
+          2
+        </div>
+        <div
+          className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center text-black"
+          style={{ transform: 'rotateY(-90deg) translateZ(32px)' }}
+        >
+          3
+        </div>
+        <div
+          className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center text-black"
+          style={{ transform: 'rotateY(90deg) translateZ(32px)' }}
+        >
+          4
+        </div>
+        <div
+          className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center text-black"
+          style={{ transform: 'rotateX(-90deg) translateZ(32px)' }}
+        >
+          5
+        </div>
+        <div
+          className="absolute inset-0 bg-white border-2 border-gray-900 flex items-center justify-center text-black"
+          style={{ transform: 'rotateY(180deg) translateZ(32px)' }}
+        >
+          6
+        </div>
       </div>
     </div>
   )
