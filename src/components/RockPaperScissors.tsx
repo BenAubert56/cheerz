@@ -42,6 +42,7 @@ interface Props {
 export default function RockPaperScissors({ players, onDone }: Props) {
   const [choiceA, setChoiceA] = useState<Choice | null>(null)
   const [choiceB, setChoiceB] = useState<Choice | null>(null)
+  const [result, setResult] = useState<string | null>(null)
 
   const winner = (a: Choice, b: Choice): 0 | 1 | null => {
     if (a === b) return null
@@ -58,12 +59,17 @@ export default function RockPaperScissors({ players, onDone }: Props) {
     if (choiceA && choiceB) {
       const w = winner(choiceA, choiceB)
       if (w === null) {
-        setTimeout(() => {
+        setResult('Égalité !')
+        const t = setTimeout(() => {
           setChoiceA(null)
           setChoiceB(null)
-        }, 500)
+          setResult(null)
+        }, 1000)
+        return () => clearTimeout(t)
       } else {
-        setTimeout(() => onDone(w === 0 ? 1 : 0), 500)
+        setResult(`${players[w].name} gagne !`)
+        const t = setTimeout(() => onDone(w === 0 ? 1 : 0), 1000)
+        return () => clearTimeout(t)
       }
     }
   }, [choiceA, choiceB])
@@ -76,8 +82,8 @@ export default function RockPaperScissors({ players, onDone }: Props) {
           <PlayerChoice player={players[0]} choice={choiceA} onChoice={setChoiceA} />
           <PlayerChoice player={players[1]} choice={choiceB} onChoice={setChoiceB} />
         </div>
-        {choiceA && choiceB && (
-          <p className="text-center text-lg font-semibold">{winner(choiceA, choiceB) === null ? 'Égalité !' : ''}</p>
+        {result && (
+          <p className="text-center text-lg font-semibold">{result}</p>
         )}
       </div>
     </div>
