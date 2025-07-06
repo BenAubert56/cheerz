@@ -66,12 +66,13 @@ export default function GameBoard({ players }: { players: Player[] }) {
   useEffect(() => {
     const update = () => {
       if (containerRef.current) {
-        setScale(containerRef.current.offsetWidth / BOARD_SIZE);
+        const { offsetWidth } = containerRef.current;
+        setScale(offsetWidth / BOARD_SIZE);
       }
     };
     update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
   const move = (roll: number) => {
@@ -107,6 +108,8 @@ export default function GameBoard({ players }: { players: Player[] }) {
         className="relative rounded-3xl bg-amber-100/80 backdrop-blur-sm shadow-2xl ring-4 ring-amber-300 overflow-hidden w-full"
         style={{
           maxWidth: `${BOARD_SIZE * MAX_SCALE}px`,
+          width: 'min(100%, 100vmin)',
+          height: 'min(100%, 100vmin)',
           aspectRatio: '1',
           backgroundImage: "url('https://cdn.jsdelivr.net/gh/sonnylazuardi/cdn/wbg/plywood.jpg')",
           backgroundSize: 'cover',
