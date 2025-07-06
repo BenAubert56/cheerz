@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import Dice from "./Dice";
-import type { Player } from "./PlayerSetup";
+import { useState, useEffect, useRef } from 'react'
+import Dice from './Dice'
+import BoardSquare from './BoardSquare'
+import type { Player } from './PlayerSetup'
+import type { GamePlayer } from './PlayerToken'
 
 interface Square {
   id: number;
@@ -48,9 +50,6 @@ export const BOARD: Square[] = [
 
 const LAST = BOARD.length - 1;
 
-interface GamePlayer extends Player {
-  position: number;
-}
 
 export default function GameBoard({ players }: { players: Player[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -116,48 +115,14 @@ export default function GameBoard({ players }: { players: Player[] }) {
         }}
       >
         {BOARD.map((sq) => (
-          <div
+          <BoardSquare
             key={sq.id}
-            style={{
-              position: 'absolute',
-              width: TILE * scale,
-              height: TILE * scale,
-              left: (sq.x + OFFSET.x) * scale,
-              top: (sq.y + OFFSET.y) * scale,
-              transform: 'translate(-50%, -50%)'
-            }}
-            className="flex items-center justify-center transition-transform duration-300 hover:scale-110"
-          >
-            {sq.type === 'star' ? (
-              <span className="text-yellow-300 text-5xl drop-shadow-md animate-pulse">★</span>
-            ) : (
-              <div
-                className="w-full h-full border-2 border-white shadow-lg"
-                style={{
-                  background: `linear-gradient(145deg, ${sq.color}33, ${sq.color})`,
-                  borderRadius: '50% 20% 50% 20%',
-                }}
-              />
-            )}
-            <div className="absolute inset-0 flex items-center justify-center gap-1 z-20">
-              {gamePlayers
-                .filter((p) => p.position === sq.id)
-                .map((p) => (
-                  <div
-                    key={p.name}
-                    className="rounded-full border-4 border-white shadow-2xl flex items-center justify-center text-white font-bold"
-                    style={{
-                      backgroundColor: p.color,
-                      width: 40 * scale,
-                      height: 40 * scale,
-                      fontSize: 16 * scale,
-                    }}
-                  >
-                    {p.name.charAt(0)}
-                  </div>
-                ))}
-            </div>
-          </div>
+            square={sq}
+            scale={scale}
+            players={gamePlayers}
+            TILE={TILE}
+            OFFSET={OFFSET}
+          />
         ))}
       </div>
       <div className="mt-8 text-center space-y-4">
