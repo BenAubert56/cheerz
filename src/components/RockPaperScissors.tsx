@@ -1,38 +1,4 @@
-import { useEffect, useState } from 'react'
 import type { GamePlayer } from './PlayerToken'
-
-export type Choice = 'rock' | 'paper' | 'scissors'
-
-const icons: Record<Choice, string> = {
-  rock: '✊',
-  paper: '✋',
-  scissors: '✌️'
-}
-
-interface PlayerChoiceProps {
-  player: GamePlayer
-  choice: Choice | null
-  onChoice: (c: Choice) => void
-}
-
-function PlayerChoice({ player, choice, onChoice }: PlayerChoiceProps) {
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="font-bold" style={{ color: player.color }}>{player.name}</div>
-      <div className="flex gap-2">
-        {(Object.keys(icons) as Choice[]).map((c) => (
-          <button
-            key={c}
-            onClick={() => onChoice(c)}
-            className={`text-3xl transition-transform hover:scale-110 ${choice === c ? 'animate-bounce' : ''}`}
-          >
-            {icons[c]}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 interface Props {
   players: [GamePlayer, GamePlayer]
@@ -40,51 +6,40 @@ interface Props {
 }
 
 export default function RockPaperScissors({ players, onDone }: Props) {
-  const [choiceA, setChoiceA] = useState<Choice | null>(null)
-  const [choiceB, setChoiceB] = useState<Choice | null>(null)
-  const [result, setResult] = useState<string | null>(null)
-
-  const winner = (a: Choice, b: Choice): 0 | 1 | null => {
-    if (a === b) return null
-    if (
-      (a === 'rock' && b === 'scissors') ||
-      (a === 'paper' && b === 'rock') ||
-      (a === 'scissors' && b === 'paper')
-    )
-      return 0
-    return 1
+  const handleWinner = (winner: 0 | 1 | null) => {
+    if (winner === null) return onDone(null)
+    onDone(winner === 0 ? 1 : 0)
   }
-
-  useEffect(() => {
-    if (choiceA && choiceB) {
-      const w = winner(choiceA, choiceB)
-      if (w === null) {
-        setResult('Égalité !')
-        const t = setTimeout(() => {
-          setChoiceA(null)
-          setChoiceB(null)
-          setResult(null)
-        }, 1000)
-        return () => clearTimeout(t)
-      } else {
-        setResult(`${players[w].name} gagne !`)
-        const t = setTimeout(() => onDone(w === 0 ? 1 : 0), 1000)
-        return () => clearTimeout(t)
-      }
-    }
-  }, [choiceA, choiceB])
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="bg-white text-black p-6 rounded-xl space-y-4 animate-pop">
         <h2 className="text-2xl font-bold text-center">Shi Fu Mi !</h2>
-        <div className="flex gap-8">
-          <PlayerChoice player={players[0]} choice={choiceA} onChoice={setChoiceA} />
-          <PlayerChoice player={players[1]} choice={choiceB} onChoice={setChoiceB} />
+        <p className="text-center text-lg">Qui a gagné ?</p>
+        <div className="flex justify-center gap-8">
+          <button
+            onClick={() => handleWinner(0)}
+            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 font-bold"
+            style={{ color: players[0].color }}
+          >
+            {players[0].name}
+          </button>
+          <button
+            onClick={() => handleWinner(1)}
+            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 font-bold"
+            style={{ color: players[1].color }}
+          >
+            {players[1].name}
+          </button>
         </div>
-        {result && (
-          <p className="text-center text-lg font-semibold">{result}</p>
-        )}
+        <div className="text-center">
+          <button
+            onClick={() => handleWinner(null)}
+            className="mt-2 text-sm text-gray-700 underline"
+          >
+            Égalité
+          </button>
+        </div>
       </div>
     </div>
   )
