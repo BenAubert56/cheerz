@@ -10,8 +10,8 @@ interface Square {
   type?: "star" | "finish";
 }
 
-const SIZE = 700;
 const TILE = 60;
+const SCALE = 1.2;
 
 export const BOARD: Square[] = [
   { id: 0, x: 85, y: 95, color: "#0ea5e9" },
@@ -88,8 +88,13 @@ export default function GameBoard({ players }: { players: Player[] }) {
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-indigo-900 to-black p-8">
       <h2 className="text-5xl font-extrabold text-white drop-shadow-xl mb-6">🌟 Plateau de Jeu 🌟</h2>
       <div
-        className="relative w-[600px] h-[600px] rounded-3xl bg-amber-100/80 backdrop-blur-sm shadow-2xl ring-4 ring-amber-300 overflow-hidden"
-        style={{ backgroundImage: "url('https://cdn.jsdelivr.net/gh/sonnylazuardi/cdn/wbg/plywood.jpg')", backgroundSize: 'cover' }}
+        className="relative rounded-3xl bg-amber-100/80 backdrop-blur-sm shadow-2xl ring-4 ring-amber-300 overflow-hidden"
+        style={{
+          width: `${600 * SCALE}px`,
+          height: `${600 * SCALE}px`,
+          backgroundImage: "url('https://cdn.jsdelivr.net/gh/sonnylazuardi/cdn/wbg/plywood.jpg')",
+          backgroundSize: 'cover',
+        }}
       >
         {BOARD.map((sq) => (
           <div
@@ -98,8 +103,8 @@ export default function GameBoard({ players }: { players: Player[] }) {
               position: 'absolute',
               width: TILE,
               height: TILE,
-              left: sq.x,
-              top: sq.y,
+              left: sq.x * SCALE,
+              top: sq.y * SCALE,
               transform: 'translate(-50%, -50%)'
             }}
             className="flex items-center justify-center transition-transform duration-300 hover:scale-110"
