@@ -1,11 +1,15 @@
 import { useState } from 'react'
 
-interface Player {
+export interface Player {
   name: string
   color: string
 }
 
-function PlayerSetup() {
+interface Props {
+  onStart: (players: Player[]) => void
+}
+
+function PlayerSetup({ onStart }: Props) {
   const [players, setPlayers] = useState<Player[]>([])
   const [name, setName] = useState('')
   const [color, setColor] = useState('#000000')
@@ -52,6 +56,11 @@ function PlayerSetup() {
       </ul>
       {players.length >= 10 && (
         <p className="text-sm text-red-500 mt-2">Limite de 10 joueurs atteinte</p>
+      )}
+      {players.length >= 2 && (
+        <button className="mt-4 border px-2 py-1" onClick={() => onStart(players)}>
+          Jouer
+        </button>
       )}
     </div>
   )

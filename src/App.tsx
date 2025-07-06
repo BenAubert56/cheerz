@@ -1,10 +1,18 @@
 import './App.css'
-import PlayerSetup from './components/PlayerSetup'
+import { useState } from 'react'
+import PlayerSetup, { Player } from './components/PlayerSetup'
+import GameBoard from './components/GameBoard'
 
 function App() {
+  const [players, setPlayers] = useState<Player[] | null>(null)
+
   return (
     <div className="p-4">
-      <PlayerSetup />
+      {players ? (
+        <GameBoard players={players} />
+      ) : (
+        <PlayerSetup onStart={(p) => setPlayers(p)} />
+      )}
     </div>
   )
 }
