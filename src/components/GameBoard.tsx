@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Dice from "./Dice";
 import type { Player } from "./PlayerSetup";
 
@@ -11,7 +11,9 @@ interface Square {
 }
 
 const TILE = 60;
-const SCALE = 1.3;
+const BOARD_SIZE = 600;
+const MAX_SCALE = 1.3;
+const OFFSET = { x: -35, y: -35 };
 
 export const BOARD: Square[] = [
   { id: 0, x: 85, y: 95, color: "#0ea5e9" },
@@ -51,6 +53,8 @@ interface GamePlayer extends Player {
 }
 
 export default function GameBoard({ players }: { players: Player[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
   const [gamePlayers, setGamePlayers] = useState<GamePlayer[]>(
     players.map((p) => ({ ...p, position: 0 }))
   );
@@ -58,6 +62,17 @@ export default function GameBoard({ players }: { players: Player[] }) {
   const [dice, setDice] = useState<number | null>(null);
   const [rolling, setRolling] = useState(false);
   const [winner, setWinner] = useState<string | null>(null);
+
+  useEffect(() => {
+    const update = () => {
+      if (containerRef.current) {
+        setScale(containerRef.current.offsetWidth / BOARD_SIZE);
+      }
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   const move = (roll: number) => {
     setGamePlayers((prev) => {
@@ -88,10 +103,11 @@ export default function GameBoard({ players }: { players: Player[] }) {
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-indigo-900 to-black p-8">
       <h2 className="text-5xl font-extrabold text-white drop-shadow-xl mb-6">🌟 Plateau de Jeu 🌟</h2>
       <div
-        className="relative rounded-3xl bg-amber-100/80 backdrop-blur-sm shadow-2xl ring-4 ring-amber-300 overflow-hidden"
+        ref={containerRef}
+        className="relative rounded-3xl bg-amber-100/80 backdrop-blur-sm shadow-2xl ring-4 ring-amber-300 overflow-hidden w-full"
         style={{
-          width: `${600 * SCALE}px`,
-          height: `${600 * SCALE}px`,
+          maxWidth: `${BOARD_SIZE * MAX_SCALE}px`,
+          aspectRatio: '1',
           backgroundImage: "url('https://cdn.jsdelivr.net/gh/sonnylazuardi/cdn/wbg/plywood.jpg')",
           backgroundSize: 'cover',
         }}
@@ -101,10 +117,10 @@ export default function GameBoard({ players }: { players: Player[] }) {
             key={sq.id}
             style={{
               position: 'absolute',
-              width: TILE,
-              height: TILE,
-              left: sq.x * SCALE,
-              top: sq.y * SCALE,
+              width: TILE * scale,
+              height: TILE * scale,
+              left: (sq.x + OFFSET.x) * scale,
+              top: (sq.y + OFFSET.y) * scale,
               transform: 'translate(-50%, -50%)'
             }}
             className="flex items-center justify-center transition-transform duration-300 hover:scale-110"
@@ -126,9 +142,16 @@ export default function GameBoard({ players }: { players: Player[] }) {
                 .map((p) => (
                   <div
                     key={p.name}
-                    className="w-10 h-10 rounded-full border-4 border-white shadow-2xl flex items-center justify-center text-white text-lg font-bold"
-                    style={{ backgroundColor: p.color }}
-                  >{p.name.charAt(0)}</div>
+                    className="rounded-full border-4 border-white shadow-2xl flex items-center justify-center text-white font-bold"
+                    style={{
+                      backgroundColor: p.color,
+                      width: 40 * scale,
+                      height: 40 * scale,
+                      fontSize: 16 * scale,
+                    }}
+                  >
+                    {p.name.charAt(0)}
+                  </div>
                 ))}
             </div>
           </div>
