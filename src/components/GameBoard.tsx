@@ -105,7 +105,7 @@ export default function GameBoard({ players }: { players: Player[] }) {
 
       {/*  BOARD  */}
       <div
-        className="relative border rounded-md shadow-lg bg-slate-50"
+        className="relative border rounded-md shadow-md"
         style={{ width: SIZE, height: SIZE }}
       >
         {/* squares */}
@@ -123,17 +123,17 @@ export default function GameBoard({ players }: { players: Player[] }) {
             className="flex items-center justify-center"
           >
             {sq.type === "star" ? (
-              <span className="text-red-700 text-4xl leading-none select-none drop-shadow-sm">
+              <span className="text-red-700 text-4xl leading-none select-none">
                 ★
               </span>
             ) : sq.type === "finish" ? (
               <div
-                className="w-full h-full rounded-lg ring-2 ring-black border border-white shadow"
+                className="w-full h-full rounded-sm ring-2 ring-black"
                 style={{ backgroundColor: sq.color }}
               />
             ) : (
               <div
-                className="w-full h-full rounded-lg border border-black/20 shadow-sm"
+                className="w-full h-full rounded-sm"
                 style={{ backgroundColor: sq.color }}
               />
             )}
