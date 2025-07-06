@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Dice from './Dice'
 import BoardSquare from './BoardSquare'
+import RockPaperScissors from './RockPaperScissors'
 import type { Player } from './PlayerSetup'
 import type { GamePlayer } from './PlayerToken'
 
@@ -61,6 +62,8 @@ export default function GameBoard({ players }: { players: Player[] }) {
   const [dice, setDice] = useState<number | null>(null);
   const [rolling, setRolling] = useState(false);
   const [winner, setWinner] = useState<string | null>(null);
+  const [skip, setSkip] = useState(() => players.map(() => 0));
+  const [rps, setRps] = useState<{ a: number; b: number } | null>(null);
 
   useEffect(() => {
     const update = () => {
@@ -74,20 +77,53 @@ export default function GameBoard({ players }: { players: Player[] }) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const move = (roll: number) => {
-    setGamePlayers((prev) => {
+  const advanceTurn = () => {
+    setSkip((prev) => {
       const updated = [...prev];
-      const current = updated[turn];
-      const newPos = Math.min(current.position + roll, LAST);
-      updated[turn] = { ...current, position: newPos };
-      if (newPos === LAST) setWinner(current.name);
+      let next = (turn + 1) % updated.length;
+      while (updated[next] > 0) {
+        updated[next] -= 1;
+        next = (next + 1) % updated.length;
+      }
+      setTurn(next);
       return updated;
     });
-    setTurn((t) => (t + 1) % gamePlayers.length);
+  };
+
+  const handleRpsDone = (loser: 0 | 1 | null) => {
+    if (!rps) return;
+    if (loser !== null) {
+      const index = loser === 0 ? rps.a : rps.b;
+      setSkip((s) => {
+        const copy = [...s];
+        copy[index] += 1;
+        return copy;
+      });
+    }
+    setRps(null);
+    advanceTurn();
+  };
+
+  const move = (roll: number) => {
+    const current = gamePlayers[turn];
+    const newPos = Math.min(current.position + roll, LAST);
+    const updatedPlayers = [...gamePlayers];
+    updatedPlayers[turn] = { ...current, position: newPos };
+    if (newPos === LAST) setWinner(current.name);
+    setGamePlayers(updatedPlayers);
+
+    const other = updatedPlayers.findIndex(
+      (p, i) => i !== turn && p.position === newPos
+    );
+    if (other !== -1) {
+      setRps({ a: turn, b: other });
+    } else {
+      advanceTurn();
+    }
   };
 
   const rollDice = () => {
-    if (winner || rolling) return;
+    if (winner || rolling || rps) return;
     setRolling(true);
     const interval = setInterval(() => setDice(Math.ceil(Math.random() * 6)), 80);
     setTimeout(() => {
@@ -133,7 +169,7 @@ export default function GameBoard({ players }: { players: Player[] }) {
             </p>
             <button
               onClick={rollDice}
-              disabled={rolling}
+              disabled={rolling || !!rps}
               className="px-12 py-4 bg-green-500/90 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition-transform active:scale-95 disabled:opacity-50"
             >
               {rolling ? '...' : 'Lancer le dé'}
@@ -146,6 +182,12 @@ export default function GameBoard({ players }: { players: Player[] }) {
           <p className="text-6xl font-extrabold text-yellow-300 animate-bounce">🎉 {winner} gagne !</p>
         )}
       </div>
+      {rps && (
+        <RockPaperScissors
+          players={[gamePlayers[rps.a], gamePlayers[rps.b]]}
+          onDone={handleRpsDone}
+        />
+      )}
     </div>
   );
 }
