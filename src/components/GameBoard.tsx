@@ -10,9 +10,8 @@ interface Square {
   type?: "star" | "finish";
 }
 
-const SIZE = 600;
+const SIZE = 700;
 const TILE = 60;
-const R = 18;
 
 export const BOARD: Square[] = [
   { id: 0, x: 85, y: 95, color: "#0ea5e9" },
@@ -47,20 +46,6 @@ export const BOARD: Square[] = [
 
 const LAST = BOARD.length - 1;
 
-function angle(p1: Square, p2: Square) {
-  return (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
-}
-
-function buildClip(angleDeg: number) {
-  const fw = 90;
-  const bw = 75;
-  const left = angleDeg > 90 || angleDeg < -90;
-  if (left) {
-    return `polygon(${100 - bw}% 0, 100% 0, 100% 100%, ${100 - fw}% 100%, ${100 - fw}% 85%, ${bw}% 15%, ${bw}% 0)`;
-  }
-  return `polygon(0 0, ${fw}% 0, ${fw}% 15%, ${100 - bw}% 85%, ${100 - bw}% 100%, 0 100%)`;
-}
-
 interface GamePlayer extends Player {
   position: number;
 }
@@ -74,7 +59,7 @@ export default function GameBoard({ players }: { players: Player[] }) {
   const [rolling, setRolling] = useState(false);
   const [winner, setWinner] = useState<string | null>(null);
 
-  function move(roll: number) {
+  const move = (roll: number) => {
     setGamePlayers((prev) => {
       const updated = [...prev];
       const current = updated[turn];
@@ -84,14 +69,12 @@ export default function GameBoard({ players }: { players: Player[] }) {
       return updated;
     });
     setTurn((t) => (t + 1) % gamePlayers.length);
-  }
+  };
 
-  function rollDice() {
+  const rollDice = () => {
     if (winner || rolling) return;
     setRolling(true);
-    const interval = setInterval(() => {
-      setDice(Math.ceil(Math.random() * 6));
-    }, 100);
+    const interval = setInterval(() => setDice(Math.ceil(Math.random() * 6)), 80);
     setTimeout(() => {
       clearInterval(interval);
       const r = Math.ceil(Math.random() * 6);
@@ -99,81 +82,74 @@ export default function GameBoard({ players }: { players: Player[] }) {
       move(r);
       setRolling(false);
     }, 1000);
-  }
+  };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4 bg-gradient-to-r from-blue-500 to-purple-500 min-h-screen">
-      <h2 className="text-3xl font-bold text-white">Plateau de jeu</h2>
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-indigo-900 to-black p-8">
+      <h2 className="text-5xl font-extrabold text-white drop-shadow-xl mb-6">🌟 Plateau de Jeu 🌟</h2>
       <div
-        className="relative rounded-xl bg-amber-50 shadow-lg ring-4 ring-amber-200"
-        style={{ width: SIZE, height: SIZE, backgroundImage: "url('https://cdn.jsdelivr.net/gh/sonnylazuardi/cdn/wbg/plywood.jpg')", backgroundSize: "cover" }}
+        className="relative w-[600px] h-[600px] rounded-3xl bg-amber-100/80 backdrop-blur-sm shadow-2xl ring-4 ring-amber-300 overflow-hidden"
+        style={{ backgroundImage: "url('https://cdn.jsdelivr.net/gh/sonnylazuardi/cdn/wbg/plywood.jpg')", backgroundSize: 'cover' }}
       >
-        {BOARD.map((sq, i) => {
-          const prev = BOARD[i - 1] ?? sq;
-          const next = BOARD[i + 1] ?? sq;
-          const dirAngle = angle(prev, next);
-          const clipPath = buildClip(dirAngle);
-          return (
-            <div
-              key={sq.id}
-              style={{
-                position: "absolute",
-                width: TILE,
-                height: TILE,
-                left: sq.x,
-                top: sq.y,
-                transform: `translate(-50%, -50%) rotate(${dirAngle}deg)`,
-              }}
-              className="flex items-center justify-center transition-transform duration-300 hover:scale-105"
-            >
-              {sq.type === "star" ? (
-                <span className="text-yellow-400 text-4xl select-none drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)] animate-pulse">★</span>
-              ) : (
-                <div
-                  className="w-full h-full shadow-md transition-colors duration-300"
-                  style={{
-                    backgroundColor: sq.color,
-                    borderRadius: R,
-                    clipPath,
-                  }}
-                />
-              )}
-              <div className="absolute inset-0 flex flex-wrap items-center justify-center gap-[2px] z-10">
-                {gamePlayers
-                  .filter((p) => p.position === sq.id)
-                  .map((p) => (
-                    <span
-                      key={p.name}
-                      className="w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold transition-transform duration-300 hover:scale-125"
-                      style={{ backgroundColor: p.color }}
-                    >
-                      {p.name.charAt(0)}
-                    </span>
-                  ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      {!winner ? (
-        <div className="text-center space-y-4">
-          <p className="text-xl font-semibold text-white">
-            Au tour de <span style={{ color: gamePlayers[turn].color }}>{gamePlayers[turn].name}</span>
-          </p>
-          <button
-            onClick={rollDice}
-            disabled={rolling}
-            className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 active:scale-95 transition-transform duration-300 shadow-lg disabled:opacity-50"
+        {BOARD.map((sq) => (
+          <div
+            key={sq.id}
+            style={{
+              position: 'absolute',
+              width: TILE,
+              height: TILE,
+              left: sq.x,
+              top: sq.y,
+              transform: 'translate(-50%, -50%)'
+            }}
+            className="flex items-center justify-center transition-transform duration-300 hover:scale-110"
           >
-            Lancer le dé
-          </button>
-          <div className="flex justify-center mt-2">
-            <Dice value={dice} rolling={rolling} />
+            {sq.type === 'star' ? (
+              <span className="text-yellow-300 text-5xl drop-shadow-md animate-pulse">★</span>
+            ) : (
+              <div
+                className="w-full h-full border-2 border-white shadow-lg"
+                style={{
+                  background: `linear-gradient(145deg, ${sq.color}33, ${sq.color})`,
+                  borderRadius: '50% 20% 50% 20%',
+                }}
+              />
+            )}
+            <div className="absolute inset-0 flex items-center justify-center gap-1 z-20">
+              {gamePlayers
+                .filter((p) => p.position === sq.id)
+                .map((p) => (
+                  <div
+                    key={p.name}
+                    className="w-10 h-10 rounded-full border-4 border-white shadow-2xl flex items-center justify-center text-white text-lg font-bold"
+                    style={{ backgroundColor: p.color }}
+                  >{p.name.charAt(0)}</div>
+                ))}
+            </div>
           </div>
-        </div>
-      ) : (
-        <p className="text-3xl font-bold text-yellow-300 animate-bounce">🎉 {winner} a gagné !</p>
-      )}
+        ))}
+      </div>
+      <div className="mt-8 text-center space-y-4">
+        {!winner ? (
+          <>
+            <p className="text-3xl text-white">
+              Au tour de <span style={{ color: gamePlayers[turn].color }}>{gamePlayers[turn].name}</span>
+            </p>
+            <button
+              onClick={rollDice}
+              disabled={rolling}
+              className="px-12 py-4 bg-green-500/90 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition-transform active:scale-95 disabled:opacity-50"
+            >
+              {rolling ? '...' : 'Lancer le dé'}
+            </button>
+            <div className="mt-2">
+              <Dice value={dice} rolling={rolling} />
+            </div>
+          </>
+        ) : (
+          <p className="text-6xl font-extrabold text-yellow-300 animate-bounce">🎉 {winner} gagne !</p>
+        )}
+      </div>
     </div>
   );
 }
