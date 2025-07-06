@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Dice from "./Dice";
 import type { Player } from "./PlayerSetup";
 
 interface Square {
@@ -70,6 +71,7 @@ export default function GameBoard({ players }: { players: Player[] }) {
   );
   const [turn, setTurn] = useState(0);
   const [dice, setDice] = useState<number | null>(null);
+  const [rolling, setRolling] = useState(false);
   const [winner, setWinner] = useState<string | null>(null);
 
   function move(roll: number) {
@@ -85,10 +87,18 @@ export default function GameBoard({ players }: { players: Player[] }) {
   }
 
   function rollDice() {
-    if (winner) return;
-    const r = Math.ceil(Math.random() * 6);
-    setDice(r);
-    move(r);
+    if (winner || rolling) return;
+    setRolling(true);
+    const interval = setInterval(() => {
+      setDice(Math.ceil(Math.random() * 6));
+    }, 100);
+    setTimeout(() => {
+      clearInterval(interval);
+      const r = Math.ceil(Math.random() * 6);
+      setDice(r);
+      move(r);
+      setRolling(false);
+    }, 1000);
   }
 
   return (
@@ -152,11 +162,14 @@ export default function GameBoard({ players }: { players: Player[] }) {
           </p>
           <button
             onClick={rollDice}
-            className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 active:scale-95 transition-transform duration-300 shadow-lg"
+            disabled={rolling}
+            className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 active:scale-95 transition-transform duration-300 shadow-lg disabled:opacity-50"
           >
             Lancer le dé
           </button>
-          {dice && <p className="text-xl font-bold text-white">Dé : {dice}</p>}
+          <div className="flex justify-center mt-2">
+            <Dice value={dice} rolling={rolling} />
+          </div>
         </div>
       ) : (
         <p className="text-3xl font-bold text-yellow-300 animate-bounce">🎉 {winner} a gagné !</p>
