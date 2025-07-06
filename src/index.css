@@ -70,3 +70,13 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* 3D dice styles */
+.perspective-500 { perspective: 500px; }
+.transform-preserve-3d { transform-style: preserve-3d; }
+@keyframes dice-roll {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+.animate-dice-roll { animation: dice-roll 1s linear infinite; }
+
