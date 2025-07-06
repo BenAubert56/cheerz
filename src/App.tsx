@@ -1,6 +1,6 @@
 import './App.css'
 import { useState } from 'react'
-import PlayerSetup, { Player } from './components/PlayerSetup'
+import PlayerSetup, { type Player } from './components/PlayerSetup'
 import GameBoard from './components/GameBoard'
 
 function App() {
