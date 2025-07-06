@@ -11,7 +11,7 @@ interface Square {
 }
 
 const TILE = 60;
-const SCALE = 1.2;
+const SCALE = 1.3;
 
 export const BOARD: Square[] = [
   { id: 0, x: 85, y: 95, color: "#0ea5e9" },
