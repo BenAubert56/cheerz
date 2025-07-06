@@ -21,46 +21,40 @@ export interface Square {
 /**
  * Board definition – update the coordinates / colours here to match your
  * physical board. The `id` order represents the path order. The `row`/`col`
- * represent where the square appears in the CSS grid. The board below is laid
- * out in a 7×7 grid that roughly follows the S‑shaped track in the photo.
+ * represent where the square appears in the CSS grid. The board below builds
+ * a 4×7 serpentine track from top left to bottom right.
  */
-export const BOARD: Square[] = [
-  // top left segment – départ
-  { id: 0, row: 0, col: 1, color: "#0284c7" },
-  { id: 1, row: 0, col: 2, color: "#10b981" },
-  { id: 2, row: 0, col: 3, type: "star" },
-  { id: 3, row: 0, col: 4, color: "#facc15" },
-  { id: 4, row: 1, col: 5, color: "#f97316" },
-  { id: 5, row: 2, col: 5, color: "#ec4899" },
-  { id: 6, row: 3, col: 4, color: "#0284c7" },
-  { id: 7, row: 3, col: 3, color: "#10b981" },
-  {
-    id: 8,
-    row: 3,
-    col: 2,
-    type: "ladder", // beginning of ladder (goes downwards)
-  },
-  { id: 9, row: 4, col: 2, type: "ladder" },
-  { id: 10, row: 5, col: 2, type: "ladder" },
-  { id: 11, row: 6, col: 2, type: "ladder" },
-  // bottom left curve
-  { id: 12, row: 6, col: 1, color: "#f1f5f9" },
-  { id: 13, row: 6, col: 0, color: "#10b981" },
-  { id: 14, row: 5, col: 0, color: "#facc15" },
-  { id: 15, row: 4, col: 0, color: "#f97316" },
-  { id: 16, row: 3, col: 0, color: "#ec4899" },
-  { id: 17, row: 2, col: 0, type: "star" },
-  { id: 18, row: 1, col: 0, color: "#10b981" },
-  // right‑hand climb to arrivée
-  { id: 19, row: 1, col: 1, color: "#0284c7" },
-  { id: 20, row: 1, col: 2, color: "#ec4899" },
-  { id: 21, row: 1, col: 3, color: "#f97316" },
-  { id: 22, row: 1, col: 4, color: "#facc15" },
-  { id: 23, row: 1, col: 5, type: "star" },
-  { id: 24, row: 1, col: 6, color: "#ec4899" },
-  { id: 25, row: 2, col: 6, color: "#f97316" },
-  { id: 26, row: 3, col: 6, color: "#facc15" },
-  { id: 27, row: 4, col: 6, color: "#10b981" },
+const COLORS = [
+  "#0284c7",
+  "#10b981",
+  "#facc15",
+  "#f97316",
+  "#ec4899",
+  "#f1f5f9",
+];
+
+const ROWS = 4;
+const COLS = 7;
+
+export const BOARD: Square[] = Array.from({ length: ROWS * COLS }, (_, i) => {
+  const row = Math.floor(i / COLS);
+  const col = row % 2 === 0 ? i % COLS : COLS - 1 - (i % COLS);
+  return { id: i, row, col, color: COLORS[i % COLORS.length] } as Square;
+});
+
+[2, 17, 23].forEach((id) => {
+  BOARD[id].type = "star";
+});
+[8, 9, 10, 11].forEach((id) => {
+  BOARD[id].type = "ladder";
+});
+
+const SHAPES = [
+  "rounded-full",
+  "rounded-2xl",
+  "rounded-tl-3xl rounded-br-3xl",
+  "rounded-tr-3xl rounded-bl-3xl",
+  "rounded-3xl",
 ];
 
 // helper to know last square
@@ -120,16 +114,18 @@ export default function GameBoard({ players }: { players: Player[] }) {
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(7, 3.5rem)`,
-          gridTemplateRows: `repeat(7, 3.5rem)`,
+          gridTemplateRows: `repeat(${ROWS}, 3.5rem)`,
           gap: "0.25rem",
         }}
       >
-        {BOARD.map((sq) => (
-          <div
-            key={sq.id}
-            style={{ gridColumn: sq.col + 1, gridRow: sq.row + 1 }}
-            className="relative flex items-center justify-center rounded-lg border-2 border-gray-700 shadow-sm overflow-hidden text-xs"
-          >
+        {BOARD.map((sq) => {
+          const shapeClass = SHAPES[sq.id % SHAPES.length];
+          return (
+            <div
+              key={sq.id}
+              style={{ gridColumn: sq.col + 1, gridRow: sq.row + 1 }}
+              className={`relative flex items-center justify-center border-2 border-gray-700 shadow-sm overflow-hidden text-xs ${shapeClass}`}
+            >
             {/* Square visuals */}
             {sq.type === "star" ? (
               <span className="text-red-600 text-2xl">★</span>
@@ -143,7 +139,7 @@ export default function GameBoard({ players }: { players: Player[] }) {
               </div>
             ) : (
               <div
-                className="absolute inset-0 rounded-sm"
+                className={`absolute inset-0 ${shapeClass}`}
                 style={{ backgroundColor: sq.color }}
               />
             )}
