@@ -116,7 +116,7 @@ export default function GameBoard({ players }: { players: Player[] }) {
 
       {/* Board grid */}
       <div
-        className="relative"
+        className="relative p-3 rounded-3xl shadow-lg bg-gradient-to-br from-orange-50 via-rose-50 to-sky-50"
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(7, 3.5rem)`,
@@ -128,11 +128,11 @@ export default function GameBoard({ players }: { players: Player[] }) {
           <div
             key={sq.id}
             style={{ gridColumn: sq.col + 1, gridRow: sq.row + 1 }}
-            className="relative flex items-center justify-center rounded-md border border-black text-xs"
+            className="relative flex items-center justify-center rounded-lg border-2 border-gray-700 shadow-sm overflow-hidden text-xs"
           >
             {/* Square visuals */}
             {sq.type === "star" ? (
-              <span className="text-red-600 text-lg">★</span>
+              <span className="text-red-600 text-2xl">★</span>
             ) : sq.type === "ladder" ? (
               <div className="w-full h-full flex flex-col justify-between p-1">
                 {/* ladder style: 4 rungs */}
