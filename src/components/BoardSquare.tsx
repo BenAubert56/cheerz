@@ -15,9 +15,10 @@ interface Props {
   players: GamePlayer[]
   TILE: number
   OFFSET: { x: number; y: number }
+  mobile: boolean
 }
 
-export default function BoardSquare({ square: sq, scale, players, TILE, OFFSET }: Props) {
+export default function BoardSquare({ square: sq, scale, players, TILE, OFFSET, mobile }: Props) {
   const tokens = players.filter((p) => p.position === sq.id)
   return (
     <div
@@ -29,15 +30,17 @@ export default function BoardSquare({ square: sq, scale, players, TILE, OFFSET }
         top: (sq.y + OFFSET.y) * scale,
         transform: 'translate(-50%, -50%)'
       }}
-      className="flex items-center justify-center transition-transform duration-300 hover:scale-110"
+      className="flex items-center justify-center transition-transform duration-300 lg:hover:scale-110"
     >
       {sq.type === 'star' ? (
         <span className="text-yellow-300 text-5xl drop-shadow-md animate-pulse">★</span>
       ) : (
         <div
-          className="w-full h-full border-2 border-white shadow-lg"
+          className="w-full h-full border-2 border-white lg:shadow-lg"
           style={{
-            background: `linear-gradient(145deg, ${sq.color}33, ${sq.color})`,
+            background: mobile
+              ? sq.color
+              : `linear-gradient(145deg, ${sq.color}33, ${sq.color})`,
             borderRadius: '50% 20% 50% 20%'
           }}
         />

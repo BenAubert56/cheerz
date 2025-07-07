@@ -13,12 +13,13 @@ interface Square {
   type?: "star" | "finish";
 }
 
-const TILE = 60;
+const TILE_DESKTOP = 60;
+const TILE_MOBILE = 40;
 const BOARD_SIZE = 600;
 const MAX_SCALE = 1.3;
 const OFFSET = { x: -35, y: -35 };
 
-export const BOARD: Square[] = [
+export const BOARD_DESKTOP: Square[] = [
   { id: 0, x: 85, y: 95, color: "#0ea5e9" },
   { id: 1, x: 145, y: 97, color: "#10b981" },
   { id: 2, x: 205, y: 110, color: "#84cc16" },
@@ -49,12 +50,41 @@ export const BOARD: Square[] = [
   { id: 27, x: 570, y: 110, color: "#ec4899", type: "finish" },
 ];
 
-const LAST = BOARD.length - 1;
+
+function createMobileBoard(): Square[] {
+  const layout: Square[] = []
+  const spacingX = 100
+  const spacingY = 60
+  const offsetX = 80
+  const offsetY = 40
+  for (let i = 0; i < 24; i++) {
+    const row = Math.floor(i / 4)
+    const colIndex = i % 4
+    const col = row % 2 === 0 ? colIndex : 3 - colIndex
+    layout.push({
+      ...BOARD_DESKTOP[i],
+      x: offsetX + col * spacingX,
+      y: offsetY + row * spacingY
+    })
+  }
+  for (let i = 24; i < BOARD_DESKTOP.length; i++) {
+    const vert = i - 24
+    layout.push({
+      ...BOARD_DESKTOP[i],
+      x: offsetX + 3 * spacingX,
+      y: offsetY + (6 + vert) * spacingY
+    })
+  }
+  return layout
+}
+
+export const BOARD_MOBILE = createMobileBoard()
 
 
 export default function GameBoard({ players }: { players: Player[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [isMobile, setIsMobile] = useState(false)
   const [gamePlayers, setGamePlayers] = useState<GamePlayer[]>(
     players.map((p) => ({ ...p, position: 0 }))
   );
@@ -65,17 +95,22 @@ export default function GameBoard({ players }: { players: Player[] }) {
   const [skip, setSkip] = useState(() => players.map(() => 0));
   const [rps, setRps] = useState<{ a: number; b: number } | null>(null);
 
+  const board = isMobile ? BOARD_MOBILE : BOARD_DESKTOP
+  const TILE = isMobile ? TILE_MOBILE : TILE_DESKTOP
+  const LAST = board.length - 1
+
   useEffect(() => {
     const update = () => {
       if (containerRef.current) {
-        const { offsetWidth } = containerRef.current;
-        setScale(offsetWidth / BOARD_SIZE);
+        const { offsetWidth } = containerRef.current
+        setScale(offsetWidth / BOARD_SIZE)
       }
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+      setIsMobile(window.innerWidth <= 767)
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   const advanceTurn = () => {
     setSkip((prev) => {
@@ -140,17 +175,16 @@ export default function GameBoard({ players }: { players: Player[] }) {
       <h2 className="text-5xl font-extrabold text-white drop-shadow-xl mb-6">🌟 Plateau de Jeu 🌟</h2>
       <div
         ref={containerRef}
-        className="relative rounded-3xl bg-amber-100/80 backdrop-blur-sm shadow-2xl ring-4 ring-amber-300 overflow-hidden w-full"
+        className="relative rounded-3xl bg-amber-100/80 backdrop-blur-sm ring-4 ring-amber-300 overflow-hidden w-full lg:shadow-2xl lg:aspect-square"
         style={{
           maxWidth: `${BOARD_SIZE * MAX_SCALE}px`,
-          width: 'min(100%, 100vmin)',
-          height: 'min(100%, 100vmin)',
-          aspectRatio: '1',
-          backgroundImage: "url('https://cdn.jsdelivr.net/gh/sonnylazuardi/cdn/wbg/plywood.jpg')",
+          height: BOARD_SIZE * scale,
+          backgroundImage:
+            "url('https://cdn.jsdelivr.net/gh/sonnylazuardi/cdn/wbg/plywood.jpg')",
           backgroundSize: 'cover',
         }}
       >
-        {BOARD.map((sq) => (
+        {board.map((sq) => (
           <BoardSquare
             key={sq.id}
             square={sq}
@@ -158,6 +192,7 @@ export default function GameBoard({ players }: { players: Player[] }) {
             players={gamePlayers}
             TILE={TILE}
             OFFSET={OFFSET}
+            mobile={isMobile}
           />
         ))}
       </div>
@@ -170,7 +205,7 @@ export default function GameBoard({ players }: { players: Player[] }) {
             <button
               onClick={rollDice}
               disabled={rolling || !!rps}
-              className="px-12 py-4 bg-green-500/90 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition-transform active:scale-95 disabled:opacity-50"
+              className="px-12 py-4 bg-green-500/90 lg:hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition-transform lg:active:scale-95 disabled:opacity-50"
             >
               {rolling ? '...' : 'Lancer le dé'}
             </button>
